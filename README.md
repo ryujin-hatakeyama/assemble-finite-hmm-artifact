@@ -17,12 +17,12 @@ let transition =
 
 Here `M` implements the model-description interface in `common/model_language.ml`. The operation `capp` combines the distribution over commands with the conditional distribution over rotations; `map` then applies the deterministic state update.
 
-These operations have a standard interpretation in terms of finite weighted distributions. Let $U$ and $V$ be finite sets and $R$ a commutative semiring. Write $\mathcal W_R(U)=\{\mu:U\to R\}$ for the $R$-weighted functions on $U$ (the free $R$-semimodule on $U$; see [Bonchi and Santamaria, 2021](https://doi.org/10.1007/978-3-030-71995-1_6)). Given $f:U\to V$, $\mu\in\mathcal W_R(U)$, and a conditional weighted distribution $K:U\to\mathcal W_R(V)$, the two operations are
+These operations have a standard interpretation in terms of finite weighted distributions. Let $U$ and $V$ be finite sets and $R$ a commutative semiring. Write $\mathcal W_R(U)=\lbrace\mu:U\to R\rbrace$ for the $R$-weighted functions on $U$ (the free $R$-semimodule on $U$; see [Bonchi and Santamaria, 2021](https://doi.org/10.1007/978-3-030-71995-1_6)). Given $f:U\to V$, $\mu\in\mathcal W_R(U)$, and a conditional weighted distribution $K:U\to\mathcal W_R(V)$, the two operations are
 
 $$
 \begin{aligned}
 \mathsf{map}(f,\mu)(v)
-  &= \bigoplus_{\substack{u\in U\\f(u)=v}}\mu(u),\\
+  &= \bigoplus_{u\in U,\;f(u)=v}\mu(u),\\
 \mathsf{capp}(\mu,K)(v)
   &= \bigoplus_{u\in U}\mu(u)\otimes K(u)(v).
 \end{aligned}
