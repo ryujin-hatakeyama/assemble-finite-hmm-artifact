@@ -30,7 +30,7 @@ let check_literal_mass typ entries =
   let sum = List.fold_left (fun acc (_, w) -> Polynomial.add acc w.Weight.polynomial) Polynomial.zero entries in
   if not (Polynomial.approx_constant ~tolerance:Model_language.probability_tolerance sum 1.0) then
     invalid_arg (Printf.sprintf "Kernel_interpreter.dist %s: total weight %s is not 1"
-                   typ.Finite_domain.name (Polynomial.to_string sum))
+                   (Finite_domain.name typ) (Polynomial.to_string sum))
 
 let eta typ x = { typ; entries = [| (Finite_domain.encode typ x, Weight.const 1.0) |] }
 
@@ -52,7 +52,7 @@ let map2 typ f d1 d2 =
 let cdist (src : 'a typ) (dst : 'b typ) f : ('a, 'b) cdist =
   let kernel =
     Model_kernel.make ~src ~dst
-      ~rows:(Array.init src.Finite_domain.cardinal (fun i ->
+      ~rows:(Array.init (Finite_domain.cardinal src) (fun i ->
         let d = f (Finite_domain.decode src i) in
         Finite_domain.require_same ~context:"Kernel_interpreter.cdist" dst d.typ;
         Array.map
@@ -72,7 +72,7 @@ let entries d = Array.to_list d.entries
 
 let initial_vector values d =
   Parameter.check_values values;
-  let v = Array.make d.typ.Finite_domain.cardinal 0.0 in
+  let v = Array.make (Finite_domain.cardinal d.typ) 0.0 in
   Array.iter
     (fun (i, w) ->
        let p = Weight.eval values w in

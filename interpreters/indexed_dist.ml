@@ -33,7 +33,8 @@ module Make (V : Parameter.VALUES) : Direct_evaluator.PROBABILITY_EVALUATOR = st
 
   let dist typ entries =
     List.iter (fun (_, w) -> Direct_evaluator.check_float_weight ~context:"Indexed_dist.dist" w) entries;
-    Direct_evaluator.check_mass ~context:("Indexed_dist.dist " ^ typ.Finite_domain.name)
+    Direct_evaluator.check_mass
+      ~context:("Indexed_dist.dist " ^ Finite_domain.name typ)
       (List.fold_left (fun s (_, w) -> s +. w) 0.0 entries);
     canonical typ (List.map (fun (x, w) -> (Finite_domain.encode typ x, w)) entries)
 
@@ -50,7 +51,7 @@ module Make (V : Parameter.VALUES) : Direct_evaluator.PROBABILITY_EVALUATOR = st
 
   let cdist (src : 'a typ) (dst : 'b typ) f =
     { src; dst;
-      rows = Array.init src.Finite_domain.cardinal (fun i ->
+      rows = Array.init (Finite_domain.cardinal src) (fun i ->
           let d = f (Finite_domain.decode src i) in
           Finite_domain.require_same ~context:"Indexed_dist.cdist" dst d.typ;
           d.entries) }
@@ -84,7 +85,7 @@ module Make (V : Parameter.VALUES) : Direct_evaluator.PROBABILITY_EVALUATOR = st
     if mass = 0.0 then ({ d with entries = [||] }, 0.0)
     else ({ d with entries = Array.map (fun (i, p) -> (i, p /. mass)) d.entries }, mass)
 
-  let cardinal (t : 'a typ) = t.Finite_domain.cardinal
+  let cardinal = Finite_domain.cardinal
   let index t x = Finite_domain.encode t x
   let value_of_index t i = Finite_domain.decode t i
   let support d = Array.to_list (Array.map (fun (i, _) -> Finite_domain.decode d.typ i) d.entries)

@@ -52,7 +52,7 @@ let require_constant_transition (kernel : ('s, 's) Model_kernel.t) =
   Model_kernel.instantiate kernel [||]
 
 let pack_rows (transition : ('s, 's) Model_kernel.numeric) =
-  let state_count = transition.Model_kernel.source.Finite_domain.cardinal in
+  let state_count = Finite_domain.cardinal transition.Model_kernel.source in
   if Array.length transition.Model_kernel.targets <> state_count
      || Array.length transition.Model_kernel.probabilities <> state_count then
     invalid_arg "Kernel_staged.pack_rows: malformed numerical kernel";
@@ -143,7 +143,7 @@ let index_symbolic_rows (kernel : ('s, 's) Model_kernel.t) =
 let pack_symbolic_rows
     (kernel : ('s, 's) Model_kernel.t)
     (indexed : indexed_symbolic_rows) =
-  let state_count = kernel.Model_kernel.src.Finite_domain.cardinal in
+  let state_count = Finite_domain.cardinal kernel.Model_kernel.src in
   if Array.length kernel.Model_kernel.rows <> state_count
      || Array.length indexed.row_weight_ids <> state_count then
     invalid_arg "Kernel_staged.pack_symbolic_rows: malformed symbolic kernel";
@@ -278,7 +278,7 @@ let emit_embedded_symbolic_transition
     ~(weight_values : float array code)
     ~(current : float array code)
     ~(next : float array code) =
-  let state_count = kernel.Model_kernel.src.Finite_domain.cardinal in
+  let state_count = Finite_domain.cardinal kernel.Model_kernel.src in
   List.init state_count (fun source ->
       emit_symbolic_row
         ~weight_values
@@ -357,7 +357,7 @@ let emit_embedded_transition
     ~(transition : ('s, 's) Model_kernel.numeric)
     ~(current : float array code)
     ~(next : float array code) =
-  let state_count = transition.Model_kernel.source.Finite_domain.cardinal in
+  let state_count = Finite_domain.cardinal transition.Model_kernel.source in
   List.init state_count (fun source ->
       emit_row
         ~current
@@ -401,7 +401,7 @@ let compile_push_core_code
     (transition : ('s, 's) Model_kernel.numeric)
     : (int array -> int array -> float array ->
        float array -> float array -> unit) code =
-  let state_count = transition.Model_kernel.source.Finite_domain.cardinal in
+  let state_count = Finite_domain.cardinal transition.Model_kernel.source in
   let emit offsets targets probabilities current next =
     match lowering with
     | Embedded ->
@@ -455,7 +455,7 @@ let compile_push_parameterized_core_code
     (transition : ('s, 's) Model_kernel.t)
     : (float array -> int array -> int array -> int array ->
        float array -> float array -> unit) code =
-  let state_count = transition.Model_kernel.src.Finite_domain.cardinal in
+  let state_count = Finite_domain.cardinal transition.Model_kernel.src in
   let emit offsets targets weight_ids weight_values current next =
     match lowering with
     | Embedded ->
@@ -644,7 +644,7 @@ let compile_forward_indices_code
        int array -> int array -> float array ->
        int array -> int array -> float array ->
        int array -> float array * float) code =
-  let state_count = transition.Model_kernel.source.Finite_domain.cardinal in
+  let state_count = Finite_domain.cardinal transition.Model_kernel.source in
   let emit_transition offsets targets probabilities current predicted =
     match lowering with
     | Embedded ->
@@ -720,7 +720,7 @@ let compile_forward
     ~context:"Kernel_staged.compile_forward"
     transition.Model_kernel.src
     transition.Model_kernel.dst;
-  let state_count = transition.Model_kernel.src.Finite_domain.cardinal in
+  let state_count = Finite_domain.cardinal transition.Model_kernel.src in
   if Array.length initial <> state_count then
     invalid_arg
       (Printf.sprintf
@@ -744,7 +744,7 @@ let compile_forward
   in
   let numeric_emission = require_constant_emission ~transition emission in
   let packed_emission = pack_columns numeric_emission in
-  let observation_count = emission.Model_kernel.dst.Finite_domain.cardinal in
+  let observation_count = Finite_domain.cardinal emission.Model_kernel.dst in
   let core =
     Runcode.run
       (compile_forward_indices_code
@@ -781,7 +781,7 @@ let compile_forward_parameterized_indices_code
        int array -> int array -> int array ->
        int array -> int array -> float array ->
        int array -> float array * float) code =
-  let state_count = transition.Model_kernel.src.Finite_domain.cardinal in
+  let state_count = Finite_domain.cardinal transition.Model_kernel.src in
   let emit_transition offsets targets weight_ids weight_values current predicted =
     match lowering with
     | Embedded ->
@@ -869,7 +869,7 @@ let compile_forward_parameterized
     ~context:"Kernel_staged.compile_forward_parameterized"
     transition.Model_kernel.src
     transition.Model_kernel.dst;
-  let state_count = transition.Model_kernel.src.Finite_domain.cardinal in
+  let state_count = Finite_domain.cardinal transition.Model_kernel.src in
   if Array.length initial <> state_count then
     invalid_arg
       (Printf.sprintf
@@ -899,7 +899,7 @@ let compile_forward_parameterized
   in
   let numeric_emission = require_constant_emission ~transition emission in
   let packed_emission = pack_columns numeric_emission in
-  let observation_count = emission.Model_kernel.dst.Finite_domain.cardinal in
+  let observation_count = Finite_domain.cardinal emission.Model_kernel.dst in
   let core =
     Runcode.run
       (compile_forward_parameterized_indices_code
@@ -1008,7 +1008,7 @@ let emit_embedded_viterbi_transition
     ~(current : float array code)
     ~(predicted : float array code)
     ~(backpointers : int array code) =
-  let state_count = transition.Model_kernel.source.Finite_domain.cardinal in
+  let state_count = Finite_domain.cardinal transition.Model_kernel.source in
   List.init state_count (fun source ->
       emit_viterbi_row
         ~current
@@ -1089,7 +1089,7 @@ let emit_embedded_symbolic_viterbi_transition
     ~(current : float array code)
     ~(predicted : float array code)
     ~(backpointers : int array code) =
-  let state_count = kernel.Model_kernel.src.Finite_domain.cardinal in
+  let state_count = Finite_domain.cardinal kernel.Model_kernel.src in
   List.init state_count (fun source ->
       emit_symbolic_viterbi_row
         ~weight_values
@@ -1183,7 +1183,7 @@ let compile_viterbi_indices_code
        int array -> int array -> float array ->
        int array -> int array -> float array ->
        int array -> int array * float) code =
-  let state_count = transition.Model_kernel.source.Finite_domain.cardinal in
+  let state_count = Finite_domain.cardinal transition.Model_kernel.source in
   let emit_transition offsets targets probabilities current predicted backpointers =
     match lowering with
     | Embedded ->
@@ -1276,7 +1276,7 @@ let compile_viterbi
     ~context:"Kernel_staged.compile_viterbi"
     transition.Model_kernel.src
     transition.Model_kernel.dst;
-  let state_count = transition.Model_kernel.src.Finite_domain.cardinal in
+  let state_count = Finite_domain.cardinal transition.Model_kernel.src in
   if Array.length initial <> state_count then
     invalid_arg
       (Printf.sprintf
@@ -1302,7 +1302,7 @@ let compile_viterbi
   in
   let numeric_emission = require_constant_emission ~transition emission in
   let packed_emission = pack_columns numeric_emission in
-  let observation_count = emission.Model_kernel.dst.Finite_domain.cardinal in
+  let observation_count = Finite_domain.cardinal emission.Model_kernel.dst in
   let core =
     Runcode.run
       (compile_viterbi_indices_code
@@ -1333,7 +1333,7 @@ let compile_viterbi_parameterized_indices_code
        int array -> int array -> int array ->
        int array -> int array -> float array ->
        int array -> int array * float) code =
-  let state_count = transition.Model_kernel.src.Finite_domain.cardinal in
+  let state_count = Finite_domain.cardinal transition.Model_kernel.src in
   let emit_transition offsets targets weight_ids weight_values current predicted backpointers =
     match lowering with
     | Embedded ->
@@ -1435,7 +1435,7 @@ let compile_viterbi_parameterized
     ~context:"Kernel_staged.compile_viterbi_parameterized"
     transition.Model_kernel.src
     transition.Model_kernel.dst;
-  let state_count = transition.Model_kernel.src.Finite_domain.cardinal in
+  let state_count = Finite_domain.cardinal transition.Model_kernel.src in
   if Array.length initial <> state_count then
     invalid_arg
       (Printf.sprintf
@@ -1465,7 +1465,7 @@ let compile_viterbi_parameterized
   in
   let numeric_emission = require_constant_emission ~transition emission in
   let packed_emission = pack_columns numeric_emission in
-  let observation_count = emission.Model_kernel.dst.Finite_domain.cardinal in
+  let observation_count = Finite_domain.cardinal emission.Model_kernel.dst in
   let core =
     Runcode.run
       (compile_viterbi_parameterized_indices_code

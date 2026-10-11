@@ -16,26 +16,41 @@ type state = { x1 : int; x2 : int; m : int }
 type obs = { y1 : int; y2 : int }
 type command = Keep | Turn
 
+let equal_state left right =
+  Int.equal left.x1 right.x1
+  && Int.equal left.x2 right.x2
+  && Int.equal left.m right.m
+
+let equal_obs left right =
+  Int.equal left.y1 right.y1 && Int.equal left.y2 right.y2
+
+let equal_command left right =
+  match left, right with
+  | Keep, Keep | Turn, Turn -> true
+  | (Keep, Turn) | (Turn, Keep) -> false
+
 let grid_size = 40
 let sensor_limit = 21
 let keep_parameter = Parameter.make ~index:0 ~name:"keep"
 
 module Types (M : Model_language.MODEL) = struct
   let one_based ~name n =
-    M.tiso ~name ~rep:(M.tint_range ~name:(name ^ "-index") n)
+    M.tiso ~name ~equal:Int.equal
+      ~rep:(M.tint_range ~name:(name ^ "-index") n)
       ~to_rep:(fun value -> value - 1) ~of_rep:(fun index -> index + 1)
 
   let coordinate_typ = one_based ~name:"coordinate" grid_size
   let sensor_typ = one_based ~name:"sensor" sensor_limit
 
   let state_typ ~modes =
-    M.tiso ~name:"state"
+    M.tiso ~name:"state" ~equal:equal_state
       ~rep:(M.tpair (M.tpair coordinate_typ coordinate_typ) modes)
       ~to_rep:(fun s -> ((s.x1, s.x2), s.m))
       ~of_rep:(fun ((x1, x2), m) -> { x1; x2; m })
 
   let obs_typ =
-    M.tiso ~name:"obs" ~rep:(M.tpair sensor_typ sensor_typ)
+    M.tiso ~name:"obs" ~equal:equal_obs
+      ~rep:(M.tpair sensor_typ sensor_typ)
       ~to_rep:(fun o -> (o.y1, o.y2)) ~of_rep:(fun (y1, y2) -> { y1; y2 })
 
   let clamp_position x =
@@ -115,7 +130,8 @@ module Variant (M : Model_language.MODEL) = struct
   let mode_typ = M.tint_range ~name:"heading" n_modes
   let state_typ = state_typ ~modes:mode_typ
   let command_typ =
-    M.tiso ~name:"command" ~rep:(M.tint_range ~name:"command-index" 2)
+    M.tiso ~name:"command" ~equal:equal_command
+      ~rep:(M.tint_range ~name:"command-index" 2)
       ~to_rep:(function Keep -> 0 | Turn -> 1)
       ~of_rep:(function 0 -> Keep | 1 -> Turn | _ -> invalid_arg "Grid_sensor.Variant.command")
 

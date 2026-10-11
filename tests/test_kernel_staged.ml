@@ -45,6 +45,35 @@ end
 
 module Retained_zero_kernel = Retained_zero_fixture (Kernel_interpreter)
 
+module Admission_fixture (M : Model_language.MODEL) = struct
+  let state_typ = M.tint_range ~name:"admission-state" 1
+  let observation_typ =
+    M.make_typ
+      ~name:"admission-observation"
+      ~cardinal:1
+      ~equal:Int.equal
+      ~encode:(function
+        | 0 | 999 -> 0
+        | value ->
+            invalid_arg
+              (Printf.sprintf "admission observation %d" value))
+      ~decode:(function
+        | 0 -> 0
+        | index ->
+            invalid_arg
+              (Printf.sprintf "admission observation index %d" index))
+
+  let initial = M.eta state_typ 0
+  let transition =
+    M.cdist state_typ state_typ
+      (fun _ -> M.eta state_typ 0)
+  let emission =
+    M.cdist state_typ observation_typ
+      (fun _ -> M.eta observation_typ 0)
+end
+
+module Admission_kernel = Admission_fixture (Kernel_interpreter)
+
 let max_abs_diff left right =
   if Array.length left <> Array.length right then infinity
   else begin
@@ -702,7 +731,7 @@ let check_zero_likelihood_viterbi () =
       ~initial
       ~transition:packed_transition
       ~emission:packed_emission
-      ~observation_count:Kernel_variant.obs_typ.Finite_domain.cardinal
+      ~observation_count:(Finite_domain.cardinal Kernel_variant.obs_typ)
       observation_indices
   in
   let zero_current = Array.make state_count 0.0 in
@@ -728,13 +757,54 @@ let check_zero_likelihood_viterbi () =
        (String.concat "," (List.map string_of_int (Array.to_list handwritten_path)))
        handwritten_score)
 
+let check_staged_observation_admission () =
+  let initial =
+    Kernel_interpreter.initial_vector [||] Admission_kernel.initial
+  in
+  let packed_forward =
+    Kernel_staged.compile_forward
+      ~lowering:Kernel_staged.Packed
+      ~initial
+      ~transition:Admission_kernel.transition
+      ~emission:Admission_kernel.emission
+  and packed_viterbi =
+    Kernel_staged.compile_viterbi
+      ~lowering:Kernel_staged.Packed
+      ~initial
+      ~transition:Admission_kernel.transition
+      ~emission:Admission_kernel.emission
+  and parameterized_packed_forward =
+    Kernel_staged.compile_forward_parameterized
+      ~lowering:Kernel_staged.Packed
+      ~initial
+      ~transition:Admission_kernel.transition
+      ~emission:Admission_kernel.emission
+  and parameterized_packed_viterbi =
+    Kernel_staged.compile_viterbi_parameterized
+      ~lowering:Kernel_staged.Packed
+      ~initial
+      ~transition:Admission_kernel.transition
+      ~emission:Admission_kernel.emission
+  in
+  expect_invalid "staged Forward rejects an out-of-carrier observation"
+    (fun () -> packed_forward [| 999 |]);
+  expect_invalid "staged Viterbi rejects an out-of-carrier observation"
+    (fun () -> packed_viterbi [| 999 |]);
+  expect_invalid
+    "parameterized staged Forward rejects an out-of-carrier observation"
+    (fun () -> parameterized_packed_forward [||] [| 999 |]);
+  expect_invalid
+    "parameterized staged Viterbi rejects an out-of-carrier observation"
+    (fun () -> parameterized_packed_viterbi [||] [| 999 |])
+
 let () =
   characterize_retained_runtime_zero ();
   check_zero_likelihood_viterbi ();
+  check_staged_observation_admission ();
 
   let symbolic_transition = Kernel_variant.transition in
   let numeric_transition = Model_kernel.instantiate symbolic_transition [||] in
-  let state_count = Kernel_variant.state_typ.Finite_domain.cardinal in
+  let state_count = Finite_domain.cardinal Kernel_variant.state_typ in
   let compiled_embedded_push, embedded_compile =
     time (fun () ->
         Kernel_staged.compile_push

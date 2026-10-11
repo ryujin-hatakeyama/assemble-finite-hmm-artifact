@@ -46,7 +46,7 @@ let close left right = Float.abs (left -. right) <= 1e-12
 let remap_indexed_numeric ~source ~destination
     (kernel : ('a, 'b) Indexed_dist.cdist) =
   let rows =
-    Array.init source.Finite_domain.cardinal (fun source_index ->
+    Array.init (Finite_domain.cardinal source) (fun source_index ->
         let source_value = Finite_domain.decode source source_index in
         Indexed_dist.row kernel source_value
         |> Indexed_dist.to_table
@@ -136,7 +136,7 @@ let () =
     "nested and flat descriptions induce the same ordinary kernel"
     (ordinary_targets_equal && ordinary_maximum_difference <= 1e-15)
     (Printf.sprintf "sources=%d maxdiff=%.1e"
-       Nested_kernel.state_typ.Finite_domain.cardinal
+       (Finite_domain.cardinal Nested_kernel.state_typ)
        ordinary_maximum_difference);
 
   let representative = { x1 = 10; x2 = 10; m = 0 } in

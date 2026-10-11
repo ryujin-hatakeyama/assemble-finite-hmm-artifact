@@ -38,7 +38,7 @@ let close left right =
 let remap_indexed_numeric ~source ~destination
     (kernel : ('a, 'b) Indexed_dist.cdist) =
   let rows =
-    Array.init source.Finite_domain.cardinal (fun source_index ->
+    Array.init (Finite_domain.cardinal source) (fun source_index ->
         let source_value = Finite_domain.decode source source_index in
         Indexed_dist.row kernel source_value
         |> Indexed_dist.to_table
@@ -163,7 +163,7 @@ let validate_interpretation () =
     "Grid4 validation failed: path-max scores are not 0.72/0.12/0.04";
   Printf.printf
     "Grid3 validation: all %d source rows sum=max (max difference %.1e)\n"
-    Kernel_original.state_typ.Finite_domain.cardinal
+    (Finite_domain.cardinal Kernel_original.state_typ)
     original_sum_max_difference;
   Printf.printf
     "Grid4 validation: summed same/right/right^2 = %.2f/%.2f/%.2f\n"

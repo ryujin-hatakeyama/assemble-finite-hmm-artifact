@@ -4,7 +4,7 @@ OCAMLOPT ?= ocamlfind ocamlopt
 FLAGS    ?= -O3
 BUILD := _build
 
-COMMON := common/finite_domain.ml common/parameter.ml common/polynomial.ml common/weight.ml \
+COMMON := common/finite_domain.mli common/finite_domain.ml common/parameter.ml common/polynomial.ml common/weight.ml \
           common/model_language.ml common/grid_sensor.ml
 INTERPRETERS := interpreters/direct_evaluator.ml interpreters/ordered_dist.ml \
                 interpreters/indexed_dist.ml interpreters/support_dist.ml interpreters/direct_forward.ml
@@ -35,6 +35,7 @@ $(BUILD)/test_finite_hmm.exe: $(BUILD)/stamp
 
 test: $(BUILD)/test_finite_hmm.exe
 	$(BUILD)/test_finite_hmm.exe
+	sh tests/check_finite_domain_abstraction.sh $(BUILD)
 
 
 AGGREGATION_BUILD := _build_aggregation_scope

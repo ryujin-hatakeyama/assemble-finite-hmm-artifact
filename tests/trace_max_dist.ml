@@ -64,7 +64,7 @@ module Make (V : Parameter.VALUES) = struct
            ~context:"Trace_max_dist.dist" weight)
       entries;
     Direct_evaluator.check_mass
-      ~context:("Trace_max_dist.dist " ^ typ.Finite_domain.name)
+      ~context:("Trace_max_dist.dist " ^ Finite_domain.name typ)
       (List.fold_left (fun mass (_, weight) -> mass +. weight) 0.0 entries);
     canonical typ
       (List.map
@@ -100,7 +100,7 @@ module Make (V : Parameter.VALUES) = struct
     { src;
       dst;
       rows =
-        Array.init src.Finite_domain.cardinal (fun index ->
+        Array.init (Finite_domain.cardinal src) (fun index ->
             let distribution = f (Finite_domain.decode src index) in
             Finite_domain.require_same
               ~context:"Trace_max_dist.cdist" dst distribution.typ;
@@ -120,7 +120,7 @@ module Make (V : Parameter.VALUES) = struct
          (Array.to_list distribution.entries))
 
   let remap_dist ~domain distribution =
-    let dense = Array.make domain.Finite_domain.cardinal 0.0 in
+    let dense = Array.make (Finite_domain.cardinal domain) 0.0 in
     Array.iter
       (fun (index, score) ->
          let value = Finite_domain.decode distribution.typ index in
@@ -132,7 +132,7 @@ module Make (V : Parameter.VALUES) = struct
      This does not call Model_kernel.instantiate or stochastic-row validation. *)
   let remap_numeric ~source ~destination kernel =
     let targets =
-      Array.init source.Finite_domain.cardinal (fun source_index ->
+      Array.init (Finite_domain.cardinal source) (fun source_index ->
           let source_value = Finite_domain.decode source source_index in
           let score_source = Finite_domain.encode kernel.src source_value in
           Array.map
@@ -141,7 +141,7 @@ module Make (V : Parameter.VALUES) = struct
                Finite_domain.encode destination target_value)
             kernel.rows.(score_source))
     and probabilities =
-      Array.init source.Finite_domain.cardinal (fun source_index ->
+      Array.init (Finite_domain.cardinal source) (fun source_index ->
           let source_value = Finite_domain.decode source source_index in
           let score_source = Finite_domain.encode kernel.src source_value in
           Array.map snd kernel.rows.(score_source))

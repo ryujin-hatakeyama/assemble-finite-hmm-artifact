@@ -121,7 +121,9 @@ let prepare_handwritten ~query ~weights ~parameter ~symbolic_transition model ob
   let observation_indices =
     Array.map (Finite_domain.encode model.emission.Model_kernel.dst) observations
   in
-  let observation_count = model.emission.Model_kernel.dst.Finite_domain.cardinal in
+  let observation_count =
+    Finite_domain.cardinal model.emission.Model_kernel.dst
+  in
   match weights with
   | Constant ->
       let prep, lowering_prep_sec =
@@ -272,7 +274,9 @@ let prepare_staged_constant ~query ~lowering ~measure_code_size ~transition mode
         numeric_transition, packed_transition, packed_emission)
   in
   let numeric_transition, packed_transition, packed_emission = prep in
-  let observation_count = model.emission.Model_kernel.dst.Finite_domain.cardinal in
+  let observation_count =
+    Finite_domain.cardinal model.emission.Model_kernel.dst
+  in
   match query with
   | Forward ->
       let code, code_construction_sec =
@@ -361,7 +365,9 @@ let prepare_staged_parameterized
   in
   let indexed, packed_transition, packed_emission = prep in
   let distinct_weights = Array.length indexed.Kernel_staged.weight_table in
-  let observation_count = model.emission.Model_kernel.dst.Finite_domain.cardinal in
+  let observation_count =
+    Finite_domain.cardinal model.emission.Model_kernel.dst
+  in
   match query with
   | Forward ->
       let code, code_construction_sec =
@@ -515,7 +521,7 @@ let () =
         | Constant -> model.transition
         | Parameterized -> model.transition_parameterized ())
   in
-  let states = symbolic_transition.Model_kernel.src.Finite_domain.cardinal in
+  let states = Finite_domain.cardinal symbolic_transition.Model_kernel.src in
   let edges = edge_count symbolic_transition in
   let prepared =
     prepare

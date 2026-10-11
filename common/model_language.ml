@@ -10,11 +10,13 @@ module type MODEL = sig
   type ('a, 'b) cdist
 
   val make_typ :
-    name:string -> cardinal:int -> encode:('a -> int) -> decode:(int -> 'a) -> 'a typ
+    name:string -> cardinal:int -> equal:('a -> 'a -> bool) ->
+    encode:('a -> int) -> decode:(int -> 'a) -> 'a typ
   val tint_range : name:string -> int -> int typ
   val tpair : 'a typ -> 'b typ -> ('a * 'b) typ
   val tiso :
-    name:string -> rep:'a typ -> to_rep:('b -> 'a) -> of_rep:('a -> 'b) -> 'b typ
+    name:string -> equal:('b -> 'b -> bool) -> rep:'a typ ->
+    to_rep:('b -> 'a) -> of_rep:('a -> 'b) -> 'b typ
 
   val const : float -> weight
   val parameter : Parameter.t -> weight

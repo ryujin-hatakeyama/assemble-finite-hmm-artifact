@@ -38,7 +38,7 @@ let map2 typ f d1 d2 =
       (Array.to_list d1.keys))
 let cdist (src : 'a typ) (dst : 'b typ) f =
   { src; dst;
-    rows = Array.init src.Finite_domain.cardinal (fun i ->
+    rows = Array.init (Finite_domain.cardinal src) (fun i ->
         let d = f (Finite_domain.decode src i) in
         Finite_domain.require_same ~context:"Support_dist.cdist" dst d.typ;
         d.keys) }
@@ -47,7 +47,7 @@ let capp d k =
   Finite_domain.require_same ~context:"Support_dist.capp" d.typ k.src;
   canonical k.dst (List.concat_map (fun i -> Array.to_list k.rows.(i)) (Array.to_list d.keys))
 
-let cardinal (t : 'a typ) = t.Finite_domain.cardinal
+let cardinal = Finite_domain.cardinal
 let index t x = Finite_domain.encode t x
 let value_of_index t i = Finite_domain.decode t i
 let support d = Array.to_list (Array.map (Finite_domain.decode d.typ) d.keys)

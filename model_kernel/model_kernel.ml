@@ -13,18 +13,18 @@ type ('a, 'b) t = {
 }
 
 let make ~src ~dst ~rows =
-  if Array.length rows <> src.Finite_domain.cardinal then
+  if Array.length rows <> Finite_domain.cardinal src then
     invalid_arg
       (Printf.sprintf
          "Model_kernel.make: got %d rows for source domain of cardinality %d"
          (Array.length rows)
-         src.Finite_domain.cardinal);
+         (Finite_domain.cardinal src));
   Array.iteri
     (fun row_index row ->
-       let seen = Array.make dst.Finite_domain.cardinal false in
+       let seen = Array.make (Finite_domain.cardinal dst) false in
        Array.iter
          (fun (edge : edge) ->
-            if edge.target < 0 || edge.target >= dst.Finite_domain.cardinal then
+            if edge.target < 0 || edge.target >= Finite_domain.cardinal dst then
               invalid_arg
                 (Printf.sprintf
                    "Model_kernel.make: target %d in row %d is outside destination domain"
@@ -111,7 +111,7 @@ let instantiate k values =
 
 (* Group rows by destination index for observation scoring or pull traversal. *)
 let columns (n : ('a, 'b) numeric) =
-  let cols = Array.make n.destination.Finite_domain.cardinal [] in
+  let cols = Array.make (Finite_domain.cardinal n.destination) [] in
   for x = Array.length n.targets - 1 downto 0 do
     Array.iteri
       (fun c y -> cols.(y) <- (x, n.probabilities.(x).(c)) :: cols.(y))
@@ -121,7 +121,7 @@ let columns (n : ('a, 'b) numeric) =
 
 (* Reverse the direction of a numerical kernel. *)
 let transpose (n : ('a, 'b) numeric) : ('b, 'a) numeric =
-  let incoming = Array.make n.destination.Finite_domain.cardinal [] in
+  let incoming = Array.make (Finite_domain.cardinal n.destination) [] in
   for x = Array.length n.targets - 1 downto 0 do
     Array.iteri
       (fun c y -> incoming.(y) <- (x, n.probabilities.(x).(c)) :: incoming.(y))

@@ -57,7 +57,8 @@ module Traverse (R : REDUCER) = struct
     let length = Array.length observations in
     if length = 0 then invalid_arg "Kernel_inference_prob: empty observation sequence";
     let n = Array.length initial in
-    if n <> transition.source.Finite_domain.cardinal then invalid_arg "Kernel_inference_prob: size mismatch";
+    if n <> Finite_domain.cardinal transition.source then
+      invalid_arg "Kernel_inference_prob: size mismatch";
     Finite_domain.require_same ~context:"Kernel_inference_prob" transition.destination emission.source;
     let columns = Model_kernel.columns emission in
     let encode = Finite_domain.encode emission.destination in
