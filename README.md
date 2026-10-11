@@ -32,7 +32,7 @@ Thus `map` is the pushforward along a function, while `capp` extends a condition
 
 For example, `Keep` is chosen with probability 0.8 and retains the heading with conditional probability 0.9, while `Turn` has probabilities 0.2 and 0.2 for the corresponding choices. Both lead to the same successor, contributing $0.8\times0.9=0.72$ and $0.2\times0.2=0.04$. Their sum gives the HMM transition probability $0.76$; the other two successors receive $0.20$ and $0.04$.
 
-More generally, let $\Gamma_x$ be the finite set of internal choice sequences from state $x$. Each $\gamma\in\Gamma_x$ has weight $w_x(\gamma)$ and successor $\tau_x(\gamma)$. The resulting HMM transition kernel is $A(x,x')=\sum_{\gamma\in\Gamma_x,\,\tau_x(\gamma)=x'}w_x(\gamma)$.
+More generally, let $\Gamma_x$ be the finite set of internal choice sequences from state $x$. Each $\gamma\in\Gamma_x$ has weight $w_x(\gamma)$ and successor $\tau_x(\gamma)$. The resulting HMM transition kernel is $A(x,x')=\sum_{\gamma\in\Gamma_x:\tau_x(\gamma)=x'}w_x(\gamma)$.
 
 The internal choices belong to individual transitions: subsequent transitions and emissions depend on the resulting HMM state. The weights are therefore combined within each transition, after which Forward and Viterbi operate on the HMM kernel $A$. Assemblé represents these combined weights symbolically and records their finite source and target indices when constructing the kernel.
 
