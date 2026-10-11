@@ -1,0 +1,8 @@
+_build/
+_build_aggregation_scope/
+_build_description_invariance/
+_build_model_generated_aggregation/
+_build_staged/
+_build_staged_native/
+__pycache__/
+!results/performance/*/runs/*/rss/*.log

@@ -1,0 +1,16 @@
+run_id=cp5e-native-final-20260929-parameterized-p0_60
+git_commit=a552089427fbcbbeaf82b09fcd5ecd674989587c
+timestamp=2026-09-29T13:01:42+0900
+backend=native
+benchmark_executable=./_build_staged_native/bench_kernel_evaluation.native
+process_repetitions=8
+run_repetitions=30
+warmup=5
+t_len=300
+parameter=0.60
+models=grid3 grid4
+queries=forward viterbi
+weights_modes=parameterized
+impls=handwritten kernel packed embedded
+impl_order_mode=balanced
+measure_rss=1

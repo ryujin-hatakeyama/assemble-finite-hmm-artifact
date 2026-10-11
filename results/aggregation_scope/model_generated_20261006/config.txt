@@ -1,0 +1,12 @@
+seed=2027
+sequences_per_model=500
+sequence_length=20
+model_order=Grid3,Grid4
+rng=OCaml Random.State.make [|2027|]
+sampling=initial then emission; repeated ordinary-summed transition then emission
+score_tolerance=9.9999999999999998e-13
+returned_paths_differ=path_sum differs from path_pathmax
+both_returned_paths_strictly_suboptimal_under_other_objective=score_pathmax(path_sum) < optimum_pathmax - tolerance AND score_sum(path_pathmax) < optimum_sum - tolerance
+cross_suboptimality_scope=the criterion evaluates only the two returned paths, not the complete optimal-path sets
+wilson_z=1.95996398454005
+quantiles=type-7 linear interpolation h=(n-1)p
