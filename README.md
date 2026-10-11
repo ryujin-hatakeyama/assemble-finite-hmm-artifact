@@ -22,7 +22,7 @@ These operations have a standard interpretation in terms of finite weighted dist
 $$
 \begin{aligned}
 \mathsf{map}(f,\mu)(v)
-  &= \bigoplus_{u\in U,\;f(u)=v}\mu(u),\\
+  &= \bigoplus_{u\in U:f(u)=v}\mu(u),\\
 \mathsf{capp}(\mu,K)(v)
   &= \bigoplus_{u\in U}\mu(u)\otimes K(u)(v).
 \end{aligned}
